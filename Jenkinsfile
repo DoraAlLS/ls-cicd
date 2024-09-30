@@ -1,5 +1,5 @@
 pipeline {
-    label {agent: 'demo'}
+    agent {label 'demo'}
 
     stages {
         stage('Hello') {
