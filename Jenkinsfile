@@ -2,7 +2,7 @@
 pipeline {
     agent {label 'demo'}
         triggers {
-        genericWebhookTrigger(
+        genericTrigger(
             causeString: 'Triggered by webhook',
             token: 'my-webhook-token',  // Use this token for webhook security
             printPostContent: true
