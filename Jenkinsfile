@@ -1,3 +1,4 @@
+@Library('ls-shared-library') _
 pipeline {
     agent {label 'demo'}
         triggers {
@@ -11,7 +12,6 @@ pipeline {
         stage('Hello') {
             steps {
                 script {
-                    @Library('ls-shared-library')
                     trunkPipeline()
                 }
             }
