@@ -9,20 +9,17 @@ pipeline {
 
     }
     */
-    parameters {
-        string(name: 'REPO_NAME')
-        choice(name: 'ENVIRONMENT', choices: ['dev', 'stage', 'prod'])
-    }
     environment {
         ENVIRONMENT = ''
+        REPO_NAME = env.GIT_REPO
         ISSUE_NUMBER = "${env.CHANGE_BRANCH ?: 'unknown'}"
         DESTINATION_BRANCH = "${env.GIT_BRANCH ?: 'unknown'}"
-        tierlist = ''
+        tierList = ''
     }
     stages {
         stage('Extract Feature Number') {
             steps {
-                script {
+                /* script {
                     // Regex to extract the feature name from a branch like 'feature/my-feature'
                     def branchName = env.SOURCE_BRANCH
                     def matcher = branchName =~ /(?:feat|hotfix)\/(.*)/
@@ -36,12 +33,13 @@ pipeline {
                     }
                     // Set the extracted value as an environment variable for subsequent stages
                     env.FEATURE_NAME = extractedFeature
-                }
+                } */
+                echo 'filler'
             }
         }
         stage('Extract Env') {
             steps {
-                script {
+                /* script {
                     switch (env.DESTINATION_BRANCH) {
                         case 'dev':
                             ENVIRONMENT = 'dev'
@@ -56,36 +54,44 @@ pipeline {
                             error "Branch ${env.DESTINATION_BRANCH} is not allowed for deployment. Aborting."
                     }
                     echo "Deploying to environment: ${ENVIRONMENT}"
-                }
+                } */
+                echo 'filler2'
             }
         }
         stage('Create Dependencies') {
             steps {
-                script {
-                    env.tierlist = createTierList()
-                    echo "Tierlist: ${tierlist}"
-                }
+                /* script {
+                    env.tierList = createTierList()
+                    echo "Tierlist: ${tierList}"
+                } */
+                echo 'filler3'
             }
         }
         // option - template & modify the tiered pipeline jenkinsfile
         // then trigger it using the next stage to keep it stateful
         stage('Template Tiered Pipeline') {
             steps {
-                sh 'p'
+                echo 'filler4'
             }
         }
         stage('Execute Tierlist') {
             steps {
-                script {
-                    build job: 'TIERED_PIPELINE', parameters: [
-                        string(name: 'TIER_LIST', value: tierlist.toString())
-                    ], wait: true
-                }
+                /*build job: 'ls-cicd-tiered-pipeline', // Job name in Jenkins for the tiered pipeline
+                    parameters: [
+                        string(name: 'BRANCH_NAME', value: 'main'), // Target branch for tiered-pipeline job
+                        string(name: 'ENVIRONMENT', value: env.ENVIRONMENT), // Pass the environment param
+                        string(name: 'BUILD_ID', value: params.BUILD_ID) // Pass the build ID or version
+                    ],
+                    propagate: true, // Fail this job if the triggered job fails
+                    wait: true // Wait for the triggered job to finish
+                */
+                echo 'filler5'
             }
         }
         stage('run smoketest') {
             steps {
-                runSmokeTest()
+                //runSmokeTest()
+                echo 'filler6'
             }
         }
     }
@@ -94,11 +100,12 @@ pipeline {
             echo 'yes'
         }
         failure {
-            script {
+            /*script {
                 build job: 'ROLLBACK', parameters: [
                     string(name: 'ENVIRONMENT', value: params.ENVIRONMENT)
                 ], wait: true
-            }
+            }*/
+            echo 'fail'
         }
         cleanup {
             echo 'splash'
