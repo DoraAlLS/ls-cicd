@@ -11,7 +11,7 @@ pipeline {
     */
     environment {
         ENVIRONMENT = ''
-        REPO_NAME = env.GIT_REPO
+        REPO_NAME = "${env.GIT_REPO ?: 'unknown'}"
         ISSUE_NUMBER = "${env.CHANGE_BRANCH ?: 'unknown'}"
         DESTINATION_BRANCH = "${env.GIT_BRANCH ?: 'unknown'}"
         tierList = ''
