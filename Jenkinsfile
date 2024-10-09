@@ -1,14 +1,12 @@
 @Library('ls-shared-library') _ 
 pipeline {
     agent {label 'demo'}
-/*        triggers {
-        genericTrigger(
-            causeString: 'Triggered by webhook',
-            token: 'my-webhook-token',  // Use this token for webhook security
-            printPostContent: true
+    parameters {
+        string(name: "COMPONENT", defaultValue: '', description: 'Component name'),
+        string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to'),
+        string(name: "BUILD_ID", defaultValue: '', description: 'Build ID or version number'),
 
     }
-    */
     environment {
         ENVIRONMENT = ''
         REPO_NAME = "${env.GIT_REPO ?: 'unknown'}"
@@ -72,13 +70,13 @@ pipeline {
         stage('Template Tiered Pipeline') {
             steps {
                 echo 'filler4'
+                //createTieredPipeline(tierlist: env.tierList, env: env.ENVIRONMENT)
             }
         }
         stage('Execute Tierlist') {
             steps {
                 /*build job: 'ls-cicd-tiered-pipeline', // Job name in Jenkins for the tiered pipeline
                     parameters: [
-                        string(name: 'BRANCH_NAME', value: 'main'), // Target branch for tiered-pipeline job
                         string(name: 'ENVIRONMENT', value: env.ENVIRONMENT), // Pass the environment param
                         string(name: 'BUILD_ID', value: params.BUILD_ID) // Pass the build ID or version
                     ],
@@ -101,9 +99,9 @@ pipeline {
         }
         failure {
             /*script {
-                build job: 'ROLLBACK', parameters: [
+                build job: 'ls-cicd-rollback', parameters: [
                     string(name: 'ENVIRONMENT', value: params.ENVIRONMENT)
-                ], wait: true
+                ], wait: false
             }*/
             echo 'fail'
         }
