@@ -17,6 +17,7 @@ pipeline {
     stages {
         stage('Extract Feature Number') {
             steps {
+                echo "**********TRIGGERED BY ${params.COMPONENT}**************"
                 /* script {
                     // Regex to extract the feature name from a branch like 'feature/my-feature'
                     def branchName = env.SOURCE_BRANCH
