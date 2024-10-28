@@ -4,57 +4,29 @@ pipeline {
     parameters {
         string(name: "COMPONENT", defaultValue: '', description: 'Component name')
         string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to')
-        string(name: "BUILD_ID", defaultValue: '', description: 'Build ID or version number')
+        string(name: "BUMP", defaultValue: 'patch', description: 'Version bump type (major, minor, patch)')
+        string(name: "FEAT_NUM", defaultValue: '', description: 'Feature number')
 
     }
     environment {
-        ENVIRONMENT = ''
-        REPO_NAME = "${env.GIT_REPO ?: 'unknown'}"
-        ISSUE_NUMBER = "${env.CHANGE_BRANCH ?: 'unknown'}"
-        DESTINATION_BRANCH = "${env.GIT_BRANCH ?: 'unknown'}"
         tierList = ''
     }
     stages {
-        stage('Extract Feature Number') {
-            steps {
-                echo "**********TRIGGERED BY ${params.COMPONENT}**************"
-                /* script {
-                    // Regex to extract the feature name from a branch like 'feature/my-feature'
-                    def branchName = env.SOURCE_BRANCH
-                    def matcher = branchName =~ /(?:feat|hotfix)\/(.*)/
-                    def extractedFeature = ''
-
-                    if (matcher.matches()) {
-                        extractedFeature = matcher[0][1] // Extract the value from the capturing group
-                        echo "Extracted feature name: ${extractedFeature}"
-                    } else {
-                        echo "No match found in branch: ${branchName}"
-                    }
-                    // Set the extracted value as an environment variable for subsequent stages
-                    env.FEATURE_NAME = extractedFeature
-                } */
-                echo 'filler'
+        stage('Check Feature Lock') {
+            when {
+                expression { return params.ENVIRONMENT == 'dev'}
             }
-        }
-        stage('Extract Env') {
             steps {
-                /* script {
-                    switch (env.DESTINATION_BRANCH) {
-                        case 'dev':
-                            ENVIRONMENT = 'dev'
-                            break
-                        case 'stage':
-                            ENVIRONMENT = 'stage'
-                            break
-                        case 'main':
-                            ENVIRONMENT = 'prod'
-                            break
-                        default:
-                            error "Branch ${env.DESTINATION_BRANCH} is not allowed for deployment. Aborting."
+                script {
+                    if (checkFeatureLock(env.FEAT_NUM)) {
+                        catchError(buildResult: 'ABORTED', stageResult: 'ABORTED') {
+                            error("Feature ${env.FEAT_NUM} is locked. Aborting...")
+                        }
+                    } else {
+                        echo "Feature ${env.FEAT_NUM} is unlocked. Proceeding..."
                     }
-                    echo "Deploying to environment: ${ENVIRONMENT}"
-                } */
-                echo 'filler2'
+                }
+                echo 'Lock Free!'
             }
         }
         stage('Create Dependencies') {
@@ -63,14 +35,14 @@ pipeline {
                     env.tierList = createTierList()
                     echo "Tierlist: ${tierList}"
                 } */
-                echo 'filler3'
+                echo 'Dependecies Created!'
             }
         }
         // option - template & modify the tiered pipeline jenkinsfile
         // then trigger it using the next stage to keep it stateful
         stage('Template Tiered Pipeline') {
             steps {
-                echo 'filler4'
+                echo 'Tiered Pipeline Templated!'
                 //createTieredPipeline(tierlist: env.tierList, env: env.ENVIRONMENT)
             }
         }
@@ -84,19 +56,19 @@ pipeline {
                     propagate: true, // Fail this job if the triggered job fails
                     wait: true // Wait for the triggered job to finish
                 */
-                echo 'filler5'
+                echo 'TierList Executed!'
             }
         }
         stage('run smoketest') {
             steps {
                 //runSmokeTest()
-                echo 'filler6'
+                echo 'Smoke Test Ran!'
             }
         }
     }
     post {
         success {
-            echo 'yes'
+            echo 'yas'
         }
         failure {
             /*script {
