@@ -18,7 +18,7 @@ pipeline {
             }
             steps {
                 script {
-                    if (checkFeatureLock(env.FEAT_NUM)) {
+                    if (checkFeatureLock(issue: env.FEAT_NUM)) {
                         catchError(buildResult: 'ABORTED', stageResult: 'ABORTED') {
                             error("Feature ${env.FEAT_NUM} is locked. Aborting...")
                         }
