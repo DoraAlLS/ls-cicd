@@ -31,10 +31,10 @@ pipeline {
         }
         stage('Create Dependencies') {
             steps {
-                /* script {
-                    env.tierList = createTierList()
+                script {
+                    env.tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
                     echo "Tierlist: ${tierList}"
-                } */
+                }
                 echo 'Dependecies Created!'
             }
         }
