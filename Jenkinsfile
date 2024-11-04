@@ -9,9 +9,6 @@ pipeline {
         string(name: "FEAT_NUM", defaultValue: '', description: 'Feature number')
 
     }
-    environment {
-        tierList = {}
-    }
     stages {
         stage('Check Feature Lock') {
             when {
@@ -36,11 +33,12 @@ pipeline {
             }
             steps {
                 script {
-                    env.tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
-                    if (!env.tierList) {
+                    def tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
+                    if (!tierList) {
                         error("Tier List is null or empty. Check the output of createTierList.")
                     }
-                    echo "Tierlist: ${JsonOutput.prettyPrint(env.tierList)}"
+                    writeFile file: 'tierList.json' text: tierList
+                    echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                 }
                 echo 'Dependecies Created!'
             }
@@ -52,8 +50,11 @@ pipeline {
                 label 'python'
             }
             steps {
-                echo 'Tiered Pipeline Templated!'
-                //createTieredPipeline(tierlist: env.tierList, env: env.ENVIRONMENT)
+                script {
+                    def tierList = readFile 'tierList.json'
+                    //createTieredPipeline(tierlist: env.tierList, env: env.ENVIRONMENT)
+                    echo 'Tiered Pipeline Templated!'
+                }
             }
         }
         stage('Execute Tierlist') {
