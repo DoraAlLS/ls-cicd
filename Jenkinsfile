@@ -37,7 +37,7 @@ pipeline {
                     if (!tierList) {
                         error("Tier List is null or empty. Check the output of createTierList.")
                     }
-                    writeFile file: 'tierList.json' text: tierList
+                    writeFile file: 'tierList.json', text: tierList
                     echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                 }
                 echo 'Dependecies Created!'
