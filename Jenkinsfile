@@ -30,6 +30,9 @@ pipeline {
             }
         }
         stage('Create Dependencies') {
+            agent {
+                label 'python'
+            }
             steps {
                 script {
                     env.tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
@@ -41,6 +44,9 @@ pipeline {
         // option - template & modify the tiered pipeline jenkinsfile
         // then trigger it using the next stage to keep it stateful
         stage('Template Tiered Pipeline') {
+            agent {
+                label 'python'
+            }
             steps {
                 echo 'Tiered Pipeline Templated!'
                 //createTieredPipeline(tierlist: env.tierList, env: env.ENVIRONMENT)
