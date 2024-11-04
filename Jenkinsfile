@@ -1,4 +1,5 @@
 @Library('ls-shared-library') _ 
+import groovy.json.JsonOutput
 pipeline {
     agent {label 'demo'}
     parameters {
@@ -36,7 +37,7 @@ pipeline {
             steps {
                 script {
                     env.tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
-                    echo "Tierlist: ${env.tierList}"
+                    echo "Tierlist: ${JsonOutput.prettyPrint(env.tierList)}"
                 }
                 echo 'Dependecies Created!'
             }
