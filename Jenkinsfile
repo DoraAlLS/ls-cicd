@@ -10,7 +10,7 @@ pipeline {
 
     }
     environment {
-        tierList = ''
+        tierList = {}
     }
     stages {
         stage('Check Feature Lock') {
@@ -37,6 +37,9 @@ pipeline {
             steps {
                 script {
                     env.tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
+                    if (!env.tierList) {
+                        error("Tier List is null or empty. Check the output of createTierList.")
+                    }
                     echo "Tierlist: ${JsonOutput.prettyPrint(env.tierList)}"
                 }
                 echo 'Dependecies Created!'
