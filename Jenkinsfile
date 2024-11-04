@@ -36,7 +36,7 @@ pipeline {
             steps {
                 script {
                     env.tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
-                    echo "Tierlist: ${tierList}"
+                    echo "Tierlist: ${env.tierList}"
                 }
                 echo 'Dependecies Created!'
             }
