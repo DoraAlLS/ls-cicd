@@ -7,7 +7,7 @@ pipeline {
         string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to')
         string(name: "BUMP", defaultValue: 'patch', description: 'Version bump type (major, minor, patch)')
         string(name: "FEAT_NUM", defaultValue: '', description: 'Feature number')
-
+        boolenaParam(name: 'DEBUG', defaultValue: false, description: 'Enable debug mode')
     }
     stages {
         stage('Check Feature Lock') {
@@ -33,12 +33,11 @@ pipeline {
             }
             steps {
                 script {
-                    def tierList = createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT)
-                    if (!tierList) {
-                        error("Tier List is null or empty. Check the output of createTierList.")
+                    createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT, DEBUG: params.DEBUG)
+                    if (params.DEBUG) {
+                        tierList = readFile 'tierList.json'
+                        echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
-                    writeFile file: 'tierList.json', text: tierList
-                    echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                 }
                 echo 'Dependecies Created!'
             }
@@ -52,6 +51,9 @@ pipeline {
             steps {
                 script {
                     def tierList = readFile 'tierList.json'
+                    if (params.DEBUG) {
+                        echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
+                    }
                     //createTieredPipeline(tierlist: env.tierList, env: env.ENVIRONMENT)
                     echo 'Tiered Pipeline Templated!'
                 }
