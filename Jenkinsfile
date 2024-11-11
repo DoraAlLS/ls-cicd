@@ -7,7 +7,7 @@ pipeline {
         string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to')
         string(name: "BUMP", defaultValue: 'patch', description: 'Version bump type (major, minor, patch)')
         string(name: "FEAT_NUM", defaultValue: '', description: 'Feature number')
-        booleanParam(name: 'DEBUG', defaultValue: false, description: 'Enable debug mode')
+        booleanParam(name: 'DEBUG', defaultValue: true, description: 'Enable debug mode')
     }
     stages {
         stage('Check Feature Lock') {
