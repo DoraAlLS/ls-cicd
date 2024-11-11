@@ -33,7 +33,7 @@ pipeline {
             }
             steps {
                 script {
-                    createTierList(env: env.ENVIRONMENT, repo: env.COMPONENT, DEBUG: params.DEBUG)
+                    createTierList(env: params.ENVIRONMENT, repo: params.COMPONENT, DEBUG: params.DEBUG)
                     if (params.DEBUG) {
                         tierList = readFile 'tierList.json'
                         echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
