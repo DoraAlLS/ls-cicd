@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  jenkins-blueocean:
+    image: 541441380680.dkr.ecr.eu-central-1.amazonaws.com/jenkins-server:latest
+    container_name: jenkins-blueocean
+    restart: on-failure
+    networks:
+      - jenkins
+    environment:
+      - DOCKER_HOST=tcp://docker:2375
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+
+  jenkins-docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    privileged: true
+    networks:
+      jenkins:
+        aliases:
+          - docker
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    ports:
+      - "2375:2375"
+    command: ["--storage-driver=overlay2"]
+
+networks:
+  jenkins:
+    driver: bridge
+
+volumes:
+  jenkins-data:
