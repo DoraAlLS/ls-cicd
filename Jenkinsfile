@@ -1,7 +1,7 @@
 @Library('ls-shared-library') _ 
 import groovy.json.JsonOutput
 pipeline {
-    agent {label 'demo'}
+    agent {docker {label 'demo'}}
     parameters {
         string(name: "COMPONENT", defaultValue: '', description: 'Component name')
         string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to')
@@ -29,7 +29,7 @@ pipeline {
         }
         stage('Create Dependencies') {
             agent {
-                label 'python'
+                docker {label 'python'}
             }
             steps {
                 script {
@@ -41,7 +41,7 @@ pipeline {
                     }
                     createTierList(env: params.ENVIRONMENT, repo: params.COMPONENT, DEBUG: params.DEBUG)
                     if (params.DEBUG) {
-                        tierList = readFile 'tierList.json'
+                        tierList = writeFile 'tierList.json'
                         echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
                 }
@@ -52,7 +52,7 @@ pipeline {
         // then trigger it using the next stage to keep it stateful
         stage('Template Tiered Pipeline') {
             agent {
-                label 'python'
+                docker {label 'python'}
             }
             steps {
                 script {
@@ -60,7 +60,7 @@ pipeline {
                     if (params.DEBUG) {
                         echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
-                    //createTieredPipeline(tierlist: env.tierList, env: env.ENVIRONMENT)
+                    createTieredPipeline(tierlist: tierList, env: params.ENVIRONMENT, bump: params.BUMP, debug: params.DEBUG)
                     echo 'Tiered Pipeline Templated!'
                 }
             }
