@@ -2,8 +2,6 @@
 import groovy.json.JsonOutput
 pipeline {
     agent {
-        docker {
-            image 'jenkins/inbound-agent'
             label 'demo'
         }
     }
@@ -35,10 +33,7 @@ pipeline {
         stage('Create Dependencies') {
             agent {
                 docker {
-                    image 'jenkins-python-agent'
                     label 'python'
-                    registryUrl '541441380680.dkr.ecr.eu-central-1.amazonaws.com'
-                    registryCredentialsId 'ecr-creds'
                 }
             }
             steps {
@@ -63,10 +58,7 @@ pipeline {
         stage('Template Tiered Pipeline') {
             agent {
                 docker {
-                    image 'jenkins-python-agent'
                     label 'python'
-                    registryUrl '541441380680.dkr.ecr.eu-central-1.amazonaws.com'
-                    registryCredentialsId 'ecr-creds'
                 }
             }
             steps {
