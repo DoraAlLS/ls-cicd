@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   jenkins-blueocean:
     image: 541441380680.dkr.ecr.eu-central-1.amazonaws.com/jenkins-server:latest
-    container_name: jenkins-blueocean
+    container_name: jenkins-blueocean-compose
     restart: on-failure
     networks:
-      - jenkins
+      - jenkins-compose
     environment:
       - DOCKER_HOST=tcp://docker:2375
     ports:
@@ -17,21 +15,22 @@ services:
 
   jenkins-docker:
     image: docker:dind
-    container_name: jenkins-docker
+    container_name: jenkins-docker-compose
     privileged: true
     networks:
-      jenkins:
+      jenkins-compose:
         aliases:
           - docker
     volumes:
-      - jenkins-data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "2375:2375"
-    command: ["--storage-driver=overlay2"]
+    command: ["dockerd", "--host=tcp://0.0.0.0:2375", "--storage-driver=overlay2", "--tls=false"]
 
 networks:
-  jenkins:
+  jenkins-compose:
     driver: bridge
 
 volumes:
   jenkins-data:
+    external: true
