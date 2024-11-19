@@ -31,7 +31,7 @@ pipeline {
         }
         stage('Create Dependencies') {
             agent {
-                    label 'python'
+                    label 'python-linux'
             }
             steps {
                 script {
@@ -54,7 +54,7 @@ pipeline {
         // then trigger it using the next stage to keep it stateful
         stage('Template Tiered Pipeline') {
             agent {
-                    label 'python'
+                    label 'python-linux'
             }
             steps {
                 script {
