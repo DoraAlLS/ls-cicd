@@ -4,7 +4,6 @@ pipeline {
     agent {
             label 'demo'
         }
-    }
     parameters {
         string(name: "COMPONENT", defaultValue: '', description: 'Component name')
         string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to')
