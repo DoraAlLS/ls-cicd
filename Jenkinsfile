@@ -3,7 +3,7 @@ import groovy.json.JsonOutput
 pipeline {
     agent {
         docker {
-            image 'jenkins/agent'
+            image 'jenkins/inbound-agent'
             label 'demo'
         }
     }
