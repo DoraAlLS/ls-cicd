@@ -1,7 +1,12 @@
 @Library('ls-shared-library') _ 
 import groovy.json.JsonOutput
 pipeline {
-    agent {docker {label 'demo'}}
+    agent {
+        docker {
+            image 'jenkins/agent'
+            label 'demo'
+        }
+    }
     parameters {
         string(name: "COMPONENT", defaultValue: '', description: 'Component name')
         string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to')
@@ -29,7 +34,12 @@ pipeline {
         }
         stage('Create Dependencies') {
             agent {
-                docker {label 'python'}
+                docker {
+                    image 'jenkins-python-agent'
+                    label 'python'
+                    registryUrl '541441380680.dkr.ecr.eu-central-1.amazonaws.com'
+                    registryCredentialsId 'ecr-creds'
+                }
             }
             steps {
                 script {
@@ -52,7 +62,12 @@ pipeline {
         // then trigger it using the next stage to keep it stateful
         stage('Template Tiered Pipeline') {
             agent {
-                docker {label 'python'}
+                docker {
+                    image 'jenkins-python-agent'
+                    label 'python'
+                    registryUrl '541441380680.dkr.ecr.eu-central-1.amazonaws.com'
+                    registryCredentialsId 'ecr-creds'
+                }
             }
             steps {
                 script {
