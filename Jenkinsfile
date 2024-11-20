@@ -60,6 +60,7 @@ pipeline {
                     label 'python-linux'
             }
             steps {
+                checkout scmGit(branches: [[name: 'main']], extensions: [], userRemoteConfigs: [[credentialsId: 'dor-github-jenkins-token', url: 'https://github.com/LightSolverInternal/ls-cicd-tiered-pipeline.git']])                
                 script {
                     // Unstash the JSON file
                     unstash name: 'tierList'
@@ -72,6 +73,14 @@ pipeline {
                     }
                     createTieredPipeline(tierlist: compactTierList, env: params.ENVIRONMENT, bump: params.BUMP, debug: params.DEBUG)
                     echo 'Tiered Pipeline Templated!'
+                    sh '''
+                        git config --global user.email "jenkins-auto-push@lightsolver.com"
+                        git config --global user.name "Jenkins Auto Push"
+                        git add Jenkinsfile
+                        git commit -m "Auto-generate Jenkinsfile for component ${params.COMPONENT} in environment ${params.ENVIRONMENT} feat ${params.FEAT_NUM}"
+                        git push origin main
+                    '''
+                
                 }
             }
         }
