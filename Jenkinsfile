@@ -1,10 +1,10 @@
 @Library('ls-shared-library') _ 
 import groovy.json.JsonOutput
-//import groovy.json.JsonSlurper
+import groovy.json.JsonSlurper
 pipeline {
     agent {
             label 'demo'
-        }
+    }
     parameters {
         string(name: "COMPONENT", defaultValue: '', description: 'Component name')
         string(name: "ENVIRONMENT", defaultValue: '', description: 'Environment to deploy to')
@@ -44,7 +44,7 @@ pipeline {
                     }
                     createTierList(env: params.ENVIRONMENT, repo: params.COMPONENT, DEBUG: params.DEBUG)
                     if (params.DEBUG) {
-                        tierList = readFile file: 'tierList.json'
+                        def tierList = readFile file: 'tierList.json'
                         echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
                     // Stash the JSON file for use in subsequent stages
@@ -60,27 +60,28 @@ pipeline {
                     label 'python-linux'
             }
             steps {
-                checkout scmGit(branches: [[name: 'main']], extensions: [], userRemoteConfigs: [[credentialsId: 'dor-github-jenkins-token', url: 'https://github.com/LightSolverInternal/ls-cicd-tiered-pipeline.git']])                
+                checkout scmGit (branches: [[name: 'main']], extensions: [], userRemoteConfigs: [[credentialsId: 'dor-github-jenkins-token', url: 'https://github.com/LightSolverInternal/ls-cicd-tiered-pipeline.git']])                
                 script {
                     // Unstash the JSON file
                     unstash name: 'tierList'
                     def tierList = readFile 'tierList.json'
-                    // def parsedTierList = new groovy.json.JsonSlurper().parseText(tierList)
-                    def compactTierList = JsonOutput.toJson(tierList)
+                    def parsedTierList = new groovy.json.JsonSlurper().parseText(tierList)
+                    def compactTierList = JsonOutput.toJson(parsedTierList)
                     if (params.DEBUG) {
                         echo "Tierlist JSON String: ${tierList}"
                         echo "PrettyPrint Tierlist: ${JsonOutput.prettyPrint(tierList)}"
+                        echo "parsed : ${parsedTierList}"
+                        echo "compact : ${compactTierList}"
                     }
                     createTieredPipeline(tierlist: compactTierList, env: params.ENVIRONMENT, bump: params.BUMP, debug: params.DEBUG)
                     echo 'Tiered Pipeline Templated!'
-                    sh '''
+                    sh """
                         git config --global user.email "jenkins-auto-push@lightsolver.com"
                         git config --global user.name "Jenkins Auto Push"
                         git add Jenkinsfile
                         git commit -m "Auto-generate Jenkinsfile for component ${params.COMPONENT} in environment ${params.ENVIRONMENT} feat ${params.FEAT_NUM}"
                         git push origin main
-                    '''
-                
+                    """
                 }
             }
         }
