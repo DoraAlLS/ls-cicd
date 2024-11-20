@@ -43,7 +43,7 @@ pipeline {
                     }
                     createTierList(env: params.ENVIRONMENT, repo: params.COMPONENT, DEBUG: params.DEBUG)
                     if (params.DEBUG) {
-                        tierList = writeFile 'tierList.json'
+                        tierList = readFile file: 'tierList.json'
                         echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
                 }
