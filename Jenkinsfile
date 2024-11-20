@@ -46,6 +46,8 @@ pipeline {
                         tierList = readFile file: 'tierList.json'
                         echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
+                    // Stash the JSON file for use in subsequent stages
+                    stash includes: 'tierList.json', name: 'tierList'
                 }
                 echo 'Dependecies Created!'
             }
@@ -58,6 +60,8 @@ pipeline {
             }
             steps {
                 script {
+                    // Unstash the JSON file
+                    unstash name: 'tierList'
                     def tierList = readFile 'tierList.json'
                     if (params.DEBUG) {
                         echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
