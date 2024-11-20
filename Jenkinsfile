@@ -1,5 +1,6 @@
 @Library('ls-shared-library') _ 
 import groovy.json.JsonOutput
+//import groovy.json.JsonSlurper
 pipeline {
     agent {
             label 'demo'
@@ -63,8 +64,11 @@ pipeline {
                     // Unstash the JSON file
                     unstash name: 'tierList'
                     def tierList = readFile 'tierList.json'
+                    // def parsedTierList = new groovy.json.JsonSlurper().parseText(tierList)
+                    def compactTierList = JsonOutput.toJson(tierList)
                     if (params.DEBUG) {
-                        echo "Tierlist: ${JsonOutput.prettyPrint(tierList)}"
+                        echo "Tierlist JSON String: ${tierList}"
+                        echo "PrettyPrint Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
                     createTieredPipeline(tierlist: tierList, env: params.ENVIRONMENT, bump: params.BUMP, debug: params.DEBUG)
                     echo 'Tiered Pipeline Templated!'
