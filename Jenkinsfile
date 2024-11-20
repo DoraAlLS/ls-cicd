@@ -70,7 +70,7 @@ pipeline {
                         echo "Tierlist JSON String: ${tierList}"
                         echo "PrettyPrint Tierlist: ${JsonOutput.prettyPrint(tierList)}"
                     }
-                    createTieredPipeline(tierlist: tierList, env: params.ENVIRONMENT, bump: params.BUMP, debug: params.DEBUG)
+                    createTieredPipeline(tierlist: compactTierList, env: params.ENVIRONMENT, bump: params.BUMP, debug: params.DEBUG)
                     echo 'Tiered Pipeline Templated!'
                 }
             }
