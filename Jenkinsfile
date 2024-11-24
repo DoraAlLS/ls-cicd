@@ -54,6 +54,8 @@ pipeline {
         }
         // option - template & modify the tiered pipeline jenkinsfile
         // then trigger it using the next stage to keep it stateful
+        // option - template & modify the tiered pipeline jenkinsfile
+        // then trigger it using the next stage to keep it stateful
         stage('Template Tiered Pipeline') {
             agent {
                     label 'python-linux'
@@ -72,13 +74,16 @@ pipeline {
                     }
                     createTieredPipeline(tierlist: compactTierList, env: params.ENVIRONMENT, bump: params.BUMP, debug: params.DEBUG)
                     echo 'Tiered Pipeline Templated!'
-                    sh """
-                        git config --global user.email "jenkins-auto-push@lightsolver.com"
-                        git config --global user.name "Jenkins Auto Push"
-                        git add Jenkinsfile
-                        git commit -m "Auto-generate Jenkinsfile for component ${params.COMPONENT} in environment ${params.ENVIRONMENT} feat ${params.FEAT_NUM}"
-                        git push origin main
-                    """
+                    withCredentials([usernamePassword(credentialsId: 'dor-github-jenkins-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh """
+                            git checkout main || git checkout -b main
+                            git config --global user.email "jenkins-auto-push@lightsolver.com"
+                            git config --global user.name "Jenkins Auto Push"
+                            git add Jenkinsfile
+                            git commit -m "Auto-generate Jenkinsfile for component ${params.COMPONENT} in environment ${params.ENVIRONMENT} feat ${params.FEAT_NUM}"
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/LightSolverInternal/ls-cicd-tiered-pipeline.git main
+                        """
+                    }
                 }
             }
         }
