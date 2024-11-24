@@ -87,7 +87,7 @@ pipeline {
         }
         stage('Execute Tierlist') {
             steps {
-                /*build job: 'ls-cicd-tiered-pipeline', // Job name in Jenkins for the tiered pipeline
+                /*build job: 'LS-DLPU/ls-cicd-tiered-pipeline/main', // Job name in Jenkins for the tiered pipeline
                     parameters: [
                         string(name: 'ENVIRONMENT', value: env.ENVIRONMENT), // Pass the environment param
                         string(name: 'BUILD_ID', value: params.BUILD_ID) // Pass the build ID or version
