@@ -64,7 +64,7 @@ pipeline {
                     // Unstash the JSON file
                     unstash name: 'tierList'
                     def tierList = readFile 'tierList.json'
-                    def compactTierList = parseJSONFile(file: tierlist)
+                    def compactTierList = parseJSONFile(file: tierList)
                     if (params.DEBUG) {
                         echo "Tierlist JSON String: ${tierList}"
                         echo "PrettyPrint Tierlist: ${JsonOutput.prettyPrint(tierList)}"
