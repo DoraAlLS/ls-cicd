@@ -1,0 +1,15 @@
+---
+- name: Deploy {{ service }} over {{ env }} Environment
+  hosts: "{{ env }}"
+  become: true
+  roles:
+    - role: ensure-galaxy-dependencies
+    - role: fetch-compose-file
+      vars:
+        fetch_from_current_repo: true
+        fetch_from_central_repo: false
+        service: "qubo-emulator"
+    - role: deploy-compose-up
+      vars:
+        project_src: "{{ project_src }}"
+...
