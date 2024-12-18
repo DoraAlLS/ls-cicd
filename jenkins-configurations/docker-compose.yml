@@ -12,7 +12,7 @@ services:
       - "50000:50000"
     volumes:
       - jenkins-data:/var/jenkins_home
-      - ../ansible/playbooks:/playbooks
+      - ../ansible/playbooks:/playbooks-vol
   jenkins-docker:
     image: docker:dind
     container_name: jenkins-docker-compose
