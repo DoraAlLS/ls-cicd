@@ -1,0 +1,4 @@
+# defaults/main.yml
+galaxy_dependencies:
+  - community.docker
+  - amazon.aws

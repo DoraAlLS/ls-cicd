@@ -1,0 +1,5 @@
+---
+- name: Fetch Latest Version of DLPU Docker Compose Files
+  hosts: "{{ env }}"
+  become: true
+  tasks:

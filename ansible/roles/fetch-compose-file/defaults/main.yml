@@ -1,0 +1,6 @@
+# defaults/main.yml
+fetch_from_current_repo: true
+fetch_from_central_repo: false
+central_repo_url: "github.com/LightSolverInternal/ls-cicd.git"
+env: "dev"
+base_dir: "/home/ruby-server/services"

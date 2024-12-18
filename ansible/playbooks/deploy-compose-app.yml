@@ -1,19 +1,20 @@
 ---
-- name: deploy qubo-emulator
-  hosts: ruby4
+- name: Deploy {{ service }} over {{ env }} Environment
+  hosts: "{{ env }}"
   become: true
   tasks:
+
     - name: refresh ecr credentials
       shell: $(aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 541441380680.dkr.ecr.eu-central-1.amazonaws.com)
 
     - name: remove existing dockers
       community.docker.docker_compose_v2:
-        project_src: /home/ruby-server/services/qubo-emulator
+        project_src: /home/ruby-server/services/{{ env }}/{{ service }}
         state: absent
 
     - name: restart docker installation
       community.docker.docker_compose_v2:
-        project_src: /home/ruby-server/services/qubo-emulator
+        project_src: /home/ruby-server/services/{{ env }}/{{ service }}
         state: present
 ...
 

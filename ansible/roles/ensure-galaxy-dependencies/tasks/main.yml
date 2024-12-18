@@ -1,0 +1,20 @@
+---
+- name: Check if collections are installed
+  ansible.builtin.command:
+    cmd: ansible-galaxy collection list {{ item }}
+  register: collection_check
+  changed_when: false
+  ignore_errors: true
+  with_items: "{{ galaxy_dependencies }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Install missing collections
+  ansible.builtin.command:
+    cmd: ansible-galaxy collection install {{ item }}"
+  when: >
+    collection_check.results[{{ ansible_loop.index0 }}].stdout is not regex_search(item)
+  with_items: "{{ galaxy_dependencies }}"
+  loop_control:
+    label: "{{ item }}"
+...

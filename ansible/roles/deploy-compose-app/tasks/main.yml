@@ -1,0 +1,102 @@
+---
+# ----- Debugging and Validation (Dry-Run) -----
+- name: check if project_src was provided
+  assert:
+    that:
+      - project_src is defined
+      - project_src | regex_search('^/[a-zA-Z0-9_/-]+$')
+  register: project_src_check
+  tags: dry-run
+  failed_when: false  # Explicitly avoid failure for validation
+  ignore_errors: true # Allow the role to continue even if assertion fails
+
+- name: Debug output required docker-compose variables
+  debug:
+    msg: >
+      Docker variables:
+      - base_dir: {{ base_dir }}
+      - env: {{ env }}
+      - service: {{ service }}
+  tags: dry-run
+  when: not project_src_check | success
+
+- name: Validate required variables for docker-compose
+  assert:
+    that:
+      - env is defined 
+      - env | regex_search('^(dev|stage|prod)$')
+      - service is defined and service is not none
+      - base_dir is defined and base_dir is not none
+    fail_msg: "Required variables base_dir, env or service are missing / invalid!"
+  tags: dry-run
+  when: not project_src_check | success
+
+- name: Debug output required AWS variables
+  debug:
+    msg: "aws_account_id={{ aws_account_id }}, default_aws_region={{ default_aws_region }}"
+  tags: dry-run
+
+- name: Validate required AWS variables
+  assert:
+    that:
+      - aws_account_id | regex_search('^[0-9]{12}$')
+      - default_aws_region is defined
+      - default_aws_region | regex_search('^(us|eu|ap|sa|ca|cn|af|me|us-gov)-[a-z]+-[0-9]+$')
+    fail_msg: "Required AWS variables aws_account_id or default_aws_region are missing / invalid!"
+  tags: dry-run
+
+- name: "Construct project_src"
+  set_fact:
+    project_src: "{{ base_dir }}/{{ env }}/{{ service }}"
+  tags: dry-run
+  when: not project_src_check | success
+
+- name: "Debug print project_src"
+  debug:
+    var: project_src
+  tags: dry-run
+
+# ----- Docker Compose Operations -----
+- name: Refresh ECR credentials
+  amazon.aws.ecr_login:
+    registry_ids:
+      - "{{ aws_account_id }}"
+    region: "{{ default_aws_region }}"
+  tags: docker-ops
+
+- name: docker compose operations
+  block:
+    - name: remove exiting dockers
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_src }}"
+        state: absent
+      register: remove_result
+      retries: 3
+      delay: 10
+      failed_when: remove_result.failed
+      tags: docker-ops
+
+    - name: restart docker installation
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_src }}"
+        state: present
+      retries: 3             # Retry up to 3 times
+      delay: 10              # Wait 10 seconds between retries
+      register: restart_result
+      failed_when: restart_result.failed  # Explicitly handle failure conditions
+      tags: docker-ops
+  rescue:
+    - name: Log error details for Docker Compose operations
+      debug:
+        msg:msg: >
+          Docker Compose failed:
+          - Remove Result: {{ remove_result.msg | default('Task not executed or no result available') }}
+          - Restart Result: {{ restart_result.msg | default('Task not executed or no result available') }}
+  always:
+    - name: Cleanup or final logging
+      debug:
+        msg: >
+          Docker Compose operations completed successfully.
+          - Remove Result: {{ remove_result.msg | default('No remove result available') }}
+          - Restart Result: {{ restart_result.msg | default('No restart result available') }}
+...

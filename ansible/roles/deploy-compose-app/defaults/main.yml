@@ -1,0 +1,4 @@
+env: "dev"
+base_dir: "/home/ruby-server/services"
+aws_account_id: 541441380680
+default_aws_region: "eu-central-1"

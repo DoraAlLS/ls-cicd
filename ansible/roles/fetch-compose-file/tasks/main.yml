@@ -1,0 +1,105 @@
+---
+# ----- Debugging and Validation (Dry-Run) -----
+- name: Debug output required docker-compose variables
+  debug:
+    msg: >
+      Docker variables:
+      - base_dir: {{ base_dir }}
+      - env: {{ env }}
+      - service: {{ service }}
+  tags: dry-run
+
+- name: Validate required variables for docker-compose
+  assert:
+    that:
+      - env is defined 
+      - env | regex_search('^(dev|stage|prod)$')
+      - service is defined and service is not none
+      - base_dir is defined and base_dir is not none
+    fail_msg: "Required variables base_dir, env or service are missing / invalid!"
+  tags: dry-run
+
+- name: Construct project_src
+  set_fact:
+    project_src: "{{ base_dir }}/{{ env }}/{{ service }}"
+  tags: dry-run
+
+- name: Validate fetch flags don't collide
+  assert:
+    that:
+      - fetch_from_current_repo is defined
+      - fetch_from_central_repo is defined
+      - fetch_from_current_repo | bool
+      - fetch_from_central_repo | bool
+      - fetch_from_current_repo != fetch_from_central_repo
+    fail_msg: "fetch_from_current_repo and fetch_from_central_repo cannot both be true or false!"
+  tags: dry-run
+
+- name: Validate central repo name is valid
+  assert:
+    that:
+      - central_repo_url is defined
+      - central_repo_url | regex_search('^(https:\/\/|git@)[a-zA-Z0-9._-]+(:[0-9]+)?\/[a-zA-Z0-9._/-]+(\.git)?$')
+    fail_msg: "Required variables central_repo_url is missing / invalid!"
+  when: fetch_from_central_repo
+  tags: dry-run
+
+- name: Debug print project_src
+  debug:
+    var: project_src
+  tags: dry-run
+
+# ----- Backup Operations -----
+- name: Ensure backup directory exists
+  file:
+    path: "/backups/{{ env }}/{{ service }}"
+    state: directory
+    mode: '0755'
+  tags: backup
+
+- name: Backup the latest Docker Compose file
+  copy:
+    src: "{{ project_src }}/docker-compose.yml"
+    dest: "/backups/{{ env }}/{{ service }}/docker-compose-{{ ansible_date_time.date }}.yml"
+    remote_src: yes
+    ignore_errors: true  # Backup will not fail if the file doesn't exist
+  tags: backup
+
+# ----- File Operations -----
+- name: Copy compose file from current workdir
+  copy: 
+    src: "./docker-compose.yml"
+    dest: "{{ project_src }}/docker-compose.yml"
+    force: yes
+  when: fetch_from_current_repo
+
+- name: Create temporary directory for central repo
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: central-repo
+  register: temp_repo_dir
+  delegate_to: localhost
+  when: fetch_from_central_repo
+
+- name: Checkout central repo into temporary directory
+  git:
+    repo: "https://{{ central_repo_url }}"
+    dest: "{{ temp_repo_dir.path }}"
+    version: "main"
+    force: yes
+  delegate_to: localhost
+  when: fetch_from_central_repo
+
+- name: Copy compose file to remote host
+  copy: 
+    src: "{{ temp_repo_dir.path }}/{{ env }}/{{ service }}/docker-compose.yml"
+    dest: "{{ project_src }}/docker-compose.yml"
+    force: yes
+  when: fetch_from_central_repo
+
+- name: Clean up temporary directory for central repo
+  file:
+    path: "{{ temp_repo_dir.path }}"
+    state: absent
+  delegate_to: localhost
+  when: fetch_from_central_repo
