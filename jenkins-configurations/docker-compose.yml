@@ -1,7 +1,7 @@
 services:
-  jenkins-blueocean:
+  jenkins:
     image: 541441380680.dkr.ecr.eu-central-1.amazonaws.com/jenkins-server:latest
-    container_name: jenkins-blueocean-compose
+    container_name: jenkins-compose
     restart: on-failure
     networks:
       - jenkins-compose
@@ -12,6 +12,7 @@ services:
       - "50000:50000"
     volumes:
       - jenkins-data:/var/jenkins_home
+      - ../ansible/playbooks:/playbooks
   jenkins-docker:
     image: docker:dind
     container_name: jenkins-docker-compose
@@ -25,6 +26,19 @@ services:
     ports:
       - "2375:2375"
     command: ["dockerd", "--host=tcp://0.0.0.0:2375", "--storage-driver=overlay2", "--tls=false"]
+      #  ansible:
+      #image: 541441380680.dkr.ecr.eu-central-1.amazonaws.com/ansible-server:latest
+      #container_name: ansible-compose
+      #restart: on-failure
+      #networks:
+      #jenkins-compose:
+      #  aliases:
+      #    - ansible
+
+      #    environment:
+      #- ANSIBLE_HOST_KEY_CHECKING=False
+      #volumes:
+      #- ../ansible/playbooks:/ansible/playbooks
 
 networks:
   jenkins-compose:
