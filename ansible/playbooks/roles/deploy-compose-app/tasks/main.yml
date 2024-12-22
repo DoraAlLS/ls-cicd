@@ -1,6 +1,6 @@
 ---
 # ----- Debugging and Validation (Dry-Run) -----
-- name: check if project_src was provided
+- name: "check if project_src was provided"
   assert:
     that:
       - project_src is defined
@@ -10,7 +10,7 @@
   failed_when: false  # Explicitly avoid failure for validation
   ignore_errors: true # Allow the role to continue even if assertion fails
 
-- name: Debug output required docker-compose variables
+- name: "Debug output required docker-compose variables"
   debug:
     msg: >
       Docker variables:
@@ -20,7 +20,7 @@
   tags: dry-run
   when: not project_src_check | success
 
-- name: Validate required variables for docker-compose
+- name: "Validate required variables for docker-compose"
   assert:
     that:
       - env is defined 
@@ -31,17 +31,15 @@
   tags: dry-run
   when: not project_src_check | success
 
-- name: Debug output required AWS variables
+- name: "Debug output required AWS variables"
   debug:
     msg: "aws_account_id={{ aws_account_id }}, default_aws_region={{ default_aws_region }}"
   tags: dry-run
 
-- name: Validate required AWS variables
+- name: "Validate required AWS variables"
   assert:
     that:
-      - aws_account_id | regex_search('^[0-9]{12}$')
-      - default_aws_region is defined
-      - default_aws_region | regex_search('^(us|eu|ap|sa|ca|cn|af|me|us-gov)-[a-z]+-[0-9]+$')
+      - aws_ecr_login_repository | regex_search('^[0-9]{12}.dkr.ecr.(us|eu|ap|sa|ca|cn|af|me|us-gov)-[a-z]+-[0-9]+.amazonaws.com$')
     fail_msg: "Required AWS variables aws_account_id or default_aws_region are missing / invalid!"
   tags: dry-run
 
@@ -57,14 +55,12 @@
   tags: dry-run
 
 # ----- Docker Compose Operations -----
-- name: Refresh ECR credentials
-  amazon.aws.ecr_login:
-    registry_ids:
-      - "{{ aws_account_id }}"
-    region: "{{ default_aws_region }}"
+- name: Log into AWS ECR docker registry
+  ansible.builtin.shell: "aws ecr get-login-password | docker login --username AWS --password-stdin {{ aws_ecr_login_repository }}"
+  when: aws_ecr_login_repository is not none and aws_ecr_login_repository != ''
   tags: docker-ops
 
-- name: docker compose operations
+- name: "docker compose operations"
   block:
     - name: remove exiting dockers
       community.docker.docker_compose_v2:
@@ -76,7 +72,7 @@
       failed_when: remove_result.failed
       tags: docker-ops
 
-    - name: restart docker installation
+    - name: "restart docker installation"
       community.docker.docker_compose_v2:
         project_src: "{{ project_src }}"
         state: present
@@ -86,14 +82,14 @@
       failed_when: restart_result.failed  # Explicitly handle failure conditions
       tags: docker-ops
   rescue:
-    - name: Log error details for Docker Compose operations
+    - name: "Log error details for Docker Compose operations"
       debug:
         msg:msg: >
           Docker Compose failed:
           - Remove Result: {{ remove_result.msg | default('Task not executed or no result available') }}
           - Restart Result: {{ restart_result.msg | default('Task not executed or no result available') }}
   always:
-    - name: Cleanup or final logging
+    - name: "Cleanup or final logging"
       debug:
         msg: >
           Docker Compose operations completed successfully.

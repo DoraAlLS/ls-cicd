@@ -11,9 +11,9 @@
 
 - name: Install missing collections
   ansible.builtin.command:
-    cmd: ansible-galaxy collection install {{ item }}"
+    cmd: ansible-galaxy collection install {{ item }}
   when: >
-    collection_check.results[{{ ansible_loop.index0 }}].stdout is not regex_search(item)
+    collection_check.results[loop_index].stdout | regex_search(item) | bool
   with_items: "{{ galaxy_dependencies }}"
   loop_control:
     label: "{{ item }}"

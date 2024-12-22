@@ -1,0 +1,8 @@
+---
+- name: install ansible-galaxy dependencies for qubo-docker-compose deployment
+  hosts: localhost
+  become: true
+  gather_facts: false
+  roles:
+    - role: ensure-galaxy-dependencies
+...

@@ -1,0 +1,3 @@
+env: "dev"
+base_dir: "/home/ruby-server/services"
+aws_ecr_login_repository: "541441380680.dkr.ecr.eu-central-1.amazonaws.com"
