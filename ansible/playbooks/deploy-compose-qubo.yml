@@ -1,12 +1,10 @@
 ---
 - name: Deploy {{ service }} over {{ env }} Environment
-  hosts: "{{ env }}"
+  hosts: "qubo_emulator"
   become: true
   roles:
     - role: fetch-compose-file
       vars:
-        fetch_from_current_repo: true
-        fetch_from_central_repo: false
         service: "qubo-emulator"
     - role: deploy-compose-app
       vars:

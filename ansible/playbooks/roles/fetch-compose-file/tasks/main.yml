@@ -29,9 +29,7 @@
     that:
       - fetch_from_current_repo is defined
       - fetch_from_central_repo is defined
-      - fetch_from_current_repo | bool
-      - fetch_from_central_repo | bool
-      - fetch_from_current_repo != fetch_from_central_repo
+      - fetch_from_current_repo | bool != fetch_from_central_repo | bool
     fail_msg: "fetch_from_current_repo and fetch_from_central_repo cannot both be true or false!"
   tags: dry-run
 
@@ -49,28 +47,13 @@
     var: project_src
   tags: dry-run
 
-# ----- Backup Operations -----
-- name: Ensure backup directory exists
-  file:
-    path: "/backups/{{ env }}/{{ service }}"
-    state: directory
-    mode: '0755'
-  tags: backup
-
-- name: Backup the latest Docker Compose file
-  copy:
-    src: "{{ project_src }}/docker-compose.yml"
-    dest: "/backups/{{ env }}/{{ service }}/docker-compose-{{ ansible_date_time.date }}.yml"
-    remote_src: yes
-    ignore_errors: true  # Backup will not fail if the file doesn't exist
-  tags: backup
-
 # ----- File Operations -----
 - name: Copy compose file from current workdir
   copy: 
     src: "./docker-compose.yml"
     dest: "{{ project_src }}/docker-compose.yml"
     force: yes
+    backup: yes
   when: fetch_from_current_repo
 
 - name: Create temporary directory for central repo
