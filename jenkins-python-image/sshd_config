@@ -1,0 +1,64 @@
+# SSHD Configuration File
+
+# Listen on port 22
+Port 22
+
+# Use the standard protocols
+Protocol 2
+
+# Disable root login for security
+PermitRootLogin no
+
+# Specify users allowed to log in (allow jenkins and optionally other users)
+AllowUsers jenkins
+
+# Authentication options
+PasswordAuthentication yes
+PubkeyAuthentication yes
+
+# Disable empty passwords for better security
+PermitEmptyPasswords no
+
+# Use authorized_keys file for key-based authentication
+AuthorizedKeysFile      /home/jenkins/.ssh/authorized_keys
+
+# Set login grace time
+LoginGraceTime 1m
+
+# Maximum number of authentication attempts per connection
+MaxAuthTries 3
+
+# Enable logging of user activity
+SyslogFacility AUTH
+LogLevel INFO
+
+# Restrict SSH connections to only specific users and IPs (optional)
+# Uncomment the next line to restrict access to a specific subnet
+# Match Address 192.168.1.0/24
+#     AllowUsers jenkins
+
+# Enable privilege separation for security
+UsePrivilegeSeparation sandbox
+
+# Restrict access to specific ciphers and MACs for security
+Ciphers aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-256,hmac-sha2-512
+
+# Set idle timeout interval (optional, for security)
+ClientAliveInterval 300
+ClientAliveCountMax 0
+
+# Enable GSSAPI (Kerberos-based) authentication (if needed)
+GSSAPIAuthentication no
+
+# Specify a banner to show during login (optional)
+# Banner /etc/issue.net
+
+# Allow agent forwarding (optional)
+AllowAgentForwarding yes
+
+# Allow TCP forwarding (optional)
+AllowTcpForwarding yes
+
+# Add key exchange algorithm options
+KexAlgorithms +diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha256,diffie-hellman-group14-sha1
