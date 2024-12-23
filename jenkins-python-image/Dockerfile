@@ -4,10 +4,10 @@ FROM almalinux:minimal
 RUN microdnf install -y \
 	git \
 	openssh-server \
-	java-11-openjdk-headless \
+	java-17-openjdk-headless \
 	python3 \
 	python3-pip \
-	--no-docs && \
+	--nodocs && \
     microdnf clean all && \
     rm -rf /usr/share/man /usr/share/doc /usr/share/locale /var/cache/* /tmp/*
 # Enable and prepare the SSH server
@@ -28,7 +28,7 @@ RUN chown -R jenkins:jenkins /home/jenkins/.ssh/ && \
     chmod 600 /home/jenkins/.ssh/authorized_keys
 
 RUN python3 -m pip install --upgrade pip && \
-    pip install --no-caceh-dir jinja2 semver
+    pip install --no-cache-dir jinja2 semver
 
 # Standard SSH port
 EXPOSE 22
