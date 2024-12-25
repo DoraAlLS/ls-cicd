@@ -1,0 +1,31 @@
+FROM almalinux:minimal
+
+# Install required packages
+RUN microdnf install -y \
+        git \
+        openssh-server \
+        java-11-openjdk-headless \
+        python3 \
+        python3-pip \
+        --nodocs && \
+    microdnf clean all && \
+    rm -rf /usr/share/man /usr/share/doc /usr/share/locale /var/cache/* /tmp/*
+
+# Enable and prepare the SSH server
+RUN mkdir -p /var/run/sshd && \
+    useradd -m -s /bin/bash jenkins && \
+    echo "jenkins:jenkins" | chpasswd
+
+# Copy authorized keys
+COPY --chown=jenkins authorized_keys /home/jenkins/.ssh/authorized_keys
+RUN chown -R jenkins:jenkins /home/jenkins/.ssh/ && \
+    chmod 700 /home/jenkins/.ssh/ && \
+    chmod 600 /home/jenkins/.ssh/authorized_keys
+
+# Install Python dependencies
+RUN pip install --no-cache-dir jinja2 semver
+
+# Expose SSH port
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]

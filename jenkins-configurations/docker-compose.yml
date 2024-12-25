@@ -13,6 +13,7 @@ services:
     volumes:
       - jenkins-data:/var/jenkins_home
       - ../ansible:/playbooks-vol
+      - ./ssl:/var/jenkins_home/.ssh
   jenkins-docker:
     image: docker:dind
     container_name: jenkins-docker-compose
