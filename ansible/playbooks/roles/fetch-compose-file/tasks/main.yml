@@ -48,6 +48,11 @@
   tags: dry-run
 
 # ----- File Operations -----
+- name: For Debugging purposes - show current workdir
+  command: pwd
+  changed_when: false
+  tags: dry-run
+
 - name: Copy compose file from current workdir
   copy: 
     src: "./docker-compose.yml"
