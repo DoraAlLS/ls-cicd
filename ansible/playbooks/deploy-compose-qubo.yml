@@ -3,7 +3,7 @@
   hosts: "qubo_emulator"
   become: true
   vars_files:
-    - /playbook-vol/vaults/secrets.yml
+    - /playbook-vol/inventories/vault-vars/secrets.yml
   roles:
     - role: fetch-compose-file
       vars:
