@@ -19,6 +19,13 @@
     fail_msg: "Required variables base_dir, env or service are missing / invalid!"
   tags: dry-run
 
+- name: Validate jenkins_workspace existance
+  assert:
+    that:
+      - jenkins_workspace is defined and jenkins_workspace is not none
+    fail_msg: "Required variable jenkins_workspace is missing / invalid!"
+  tags: dry-run
+
 - name: Construct project_src
   set_fact:
     project_src: "{{ base_dir }}/{{ env }}/{{ service }}"
@@ -55,7 +62,7 @@
 
 - name: Copy compose file from current workdir
   copy: 
-    src: "./docker-compose.yml"
+    src: "{{ jenkins_workspace }}/docker-compose.yml"
     dest: "{{ project_src }}/docker-compose.yml"
     force: yes
     backup: yes
