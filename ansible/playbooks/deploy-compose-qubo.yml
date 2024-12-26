@@ -2,8 +2,6 @@
 - name: Deploy {{ service }} over {{ env }} Environment
   hosts: "qubo_emulator"
   become: true
-  vars_files:
-    - /playbook-vol/inventories/vault-vars/secrets.yml
   roles:
     - role: fetch-compose-file
       vars:
