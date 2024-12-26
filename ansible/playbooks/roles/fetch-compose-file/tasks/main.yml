@@ -58,6 +58,12 @@
 - name: For Debugging purposes - show current workdir
   command: pwd
   changed_when: false
+  register: current_workdir
+  tags: dry-run
+
+- name: Print current workdir
+  debug:
+    var: current_workdir.stdout
   tags: dry-run
 
 - name: Copy compose file from current workdir
