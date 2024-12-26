@@ -55,7 +55,7 @@
   tags: dry-run
 
 # ----- File Operations -----
-- name: For Debugging purposes - show current workdir
+- name: For Debugging purposes, show current workdir
   command: pwd
   changed_when: false
   register: current_workdir
